@@ -8,17 +8,16 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
 import com.mesibo.api.Mesibo
+import com.mesibo.api.Mesibo.*
 import com.mesibo.calls.api.MesiboCall
-
 import com.mesibo.messaging.MesiboUI
 
 
-class MainActivity : AppCompatActivity(), Mesibo.ConnectionListener, Mesibo.MessageListener {
+class MainActivity : AppCompatActivity(), Mesibo.ConnectionListener, Mesibo.MessageListener,Mesibo.FileTransferHandler {
 
     internal inner class DemoUser(var token: String, var name: String, var address: String)
-
+    val p: Mesibo.MessageParams = Mesibo.MessageParams()
     //Refer to the Get-Started guide to create two users and their access tokens
     internal var mUser1 = DemoUser("4620627167fbe91d59d4eb8b646804f5bb266a31bc0659a4ebb3319cf", "User-1", "9909607938")
     internal var mUser2 = DemoUser("46acb856ce0cd45d4fd2d87f69c89070fe3040a652753102be773319d0", "User-2", "6352222741")
@@ -69,7 +68,6 @@ class MainActivity : AppCompatActivity(), Mesibo.ConnectionListener, Mesibo.Mess
         mProfile = Mesibo.UserProfile()
         mProfile?.address = remoteUser.address
         mProfile?.name = remoteUser.name
-        Mesibo.setUserProfile(mProfile, false)
 
         // disable login buttons
         mLoginButton1!!.isEnabled = false
@@ -100,7 +98,7 @@ class MainActivity : AppCompatActivity(), Mesibo.ConnectionListener, Mesibo.Mess
     }
 
     fun onSendMessage(view: View?) {
-        val p: Mesibo.MessageParams = Mesibo.MessageParams()
+
         p.peer = mRemoteUser!!.address
         p.flag = Mesibo.FLAG_READRECEIPT or Mesibo.FLAG_DELIVERYRECEIPT
         Mesibo.sendMessage(p, Mesibo.random(), mMessage!!.text.toString().trim { it <= ' ' })
@@ -144,5 +142,13 @@ class MainActivity : AppCompatActivity(), Mesibo.ConnectionListener, Mesibo.Mess
     override fun Mesibo_onActivity(messageParams: Mesibo.MessageParams?, i: Int) {}
     override fun Mesibo_onLocation(messageParams: Mesibo.MessageParams?, location: Mesibo.Location?) {}
     override fun Mesibo_onFile(messageParams: Mesibo.MessageParams?, fileInfo: Mesibo.FileInfo?) {}
+    override fun Mesibo_onStartFileTransfer(file: Mesibo.FileInfo?): Boolean {
 
+        return Mesibo.sendFile(p, Mesibo.random(), file) == 0
+    }
+
+    override fun Mesibo_onStopFileTransfer(p0: Mesibo.FileInfo?): Boolean {
+        return false
+
+    }
 }
