@@ -6,7 +6,6 @@ import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.mesibo.api.Mesibo
 import com.mesibo.api.MesiboProfile
@@ -60,6 +59,8 @@ companion object{
     }
 
     private fun mesiboInit(user: DemoUser, remoteUser: DemoUser) {
+        val editor = getSharedPreferences("test", MODE_PRIVATE)
+
         val api: Mesibo = Mesibo.getInstance()
         api.init(applicationContext)
         Mesibo.addListener(this)
@@ -67,6 +68,7 @@ companion object{
         Mesibo.setSecureConnection(true)
         Mesibo.setAccessToken(user.token)
         Mesibo.setDatabase("mydb.db", 0)
+        Mesibo.setPushToken(editor.getString("token", ""))
         Mesibo.start()
 
         mRemoteUser = remoteUser
@@ -125,6 +127,7 @@ companion object{
             0,
             null
         )
+//        MesiboUI.launch(this,0,false,true)
         finish()
 //                MesiboUI.launchContacts(this, Mesibo.random(), MODE_PRIVATE, true);
 //        MesiboUI.launchMessageView(this, mRemoteUser!!.address, 0)
@@ -143,15 +146,7 @@ companion object{
     }
 
     override fun Mesibo_onMessage(messageParams: Mesibo.MessageParams?, data: ByteArray?): Boolean {
-        try {
-            val message = String(data!!)
-            val toast = Toast.makeText(applicationContext,
-                message,
-                Toast.LENGTH_SHORT)
-            toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0)
-            toast.show()
-        } catch (e: Exception) {
-        }
+
         return true
     }
 
